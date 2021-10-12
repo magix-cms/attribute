@@ -27,7 +27,7 @@ class plugins_attribute_db
 
                     $sql = "SELECT p.id_attr, c.type_attr ,p.date_register, (SELECT count(id_attr_va) FROM mc_attribute_value AS av WHERE av.id_attr = p.id_attr  ) AS num_value
 						FROM mc_attribute AS p
-                            JOIN mc_attribute_content AS c USING ( id_attr )
+                            JOIN mc_attribute_content AS c ON(c.id_attr = p.id_attr)
 							JOIN mc_lang AS lang ON ( c.id_lang = lang.id_lang )
 							WHERE c.id_lang = :default_lang
 						ORDER BY p.id_attr" . $limit;
@@ -60,7 +60,7 @@ class plugins_attribute_db
 
                             $sql = "SELECT p.id_attr, c.type_attr ,p.date_register, (SELECT count(id_attr_va) FROM mc_attribute_value AS av WHERE av.id_attr = p.id_attr  ) AS num_value
 						FROM mc_attribute AS p
-                            JOIN mc_attribute_content AS c USING ( id_attr )
+                            JOIN mc_attribute_content AS c ON(c.id_attr = p.id_attr)
 							JOIN mc_lang AS lang ON ( c.id_lang = lang.id_lang )
 							WHERE c.id_lang = :default_lang
                             $cond
@@ -71,25 +71,24 @@ class plugins_attribute_db
                 case 'page':
                     $sql = 'SELECT p.*,c.*,lang.*
 							FROM mc_attribute AS p
-							JOIN mc_attribute_content AS c USING(id_attr)
+							JOIN mc_attribute_content AS c ON(c.id_attr = p.id_attr)
 							JOIN mc_lang AS lang ON(c.id_lang = lang.id_lang)
 							WHERE p.id_attr = :edit';
                     break;
                 case 'attrvalue':
                     $sql = 'SELECT v.id_content, p.id_attr_va, v.value_attr,v.id_lang,lang.iso_lang,lang.default_lang
 							FROM mc_attribute_value AS p
-							JOIN mc_attribute AS c USING(id_attr)
-                            JOIN mc_attribute_value_content AS v USING(id_attr_va)
+							JOIN mc_attribute AS c ON(c.id_attr = p.id_attr)
+                            JOIN mc_attribute_value_content AS v ON(v.id_attr_va = p.id_attr_va)
 							JOIN mc_lang AS lang ON(v.id_lang = lang.id_lang)
-							WHERE p.id_attr = :edit
-							ORDER BY p.id_attr_va DESC';
+							WHERE p.id_attr = :edit';
                     break;
                 case 'cats':
                     $sql = 'SELECT 
 								c.id_cat,
 								cc.name_cat
 							FROM mc_catalog_cat AS c
-							JOIN mc_catalog_cat_content AS cc USING(id_cat)
+							JOIN mc_catalog_cat_content AS cc ON(c.id_cat = cc.id_cat)
 							JOIN mc_lang AS lang ON(cc.id_lang = lang.id_lang)
 							WHERE cc.id_lang = :default_lang';
                     break;
@@ -99,10 +98,59 @@ class plugins_attribute_db
 								c.id_cat,
 								cc.name_cat
                             FROM mc_attribute_category as cat
-							JOIN mc_catalog_cat AS c USING(id_cat)
-							JOIN mc_catalog_cat_content AS cc USING(id_cat)
+							JOIN mc_catalog_cat AS c ON(cat.id_cat = c.id_cat)
+							JOIN mc_catalog_cat_content AS cc ON(c.id_cat = cc.id_cat)
 							JOIN mc_lang AS lang ON(cc.id_lang = lang.id_lang)
-							WHERE cc.id_lang = :default_lang';
+							WHERE cc.id_lang = :default_lang AND cat.id_attr = :id';
+                    break;
+                case 'langAttrByCat':
+                    $sql = 'SELECT 
+                                cat.id_attr_ca,
+								cat.id_attr,
+								c.type_attr,
+                                lang.iso_lang
+                            FROM mc_attribute_category as cat
+							JOIN mc_attribute AS p ON(cat.id_attr = p.id_attr)
+							JOIN mc_attribute_content AS c ON(c.id_attr = p.id_attr)
+							JOIN mc_lang AS lang ON(c.id_lang = lang.id_lang)
+							WHERE lang.iso_lang = :iso AND cat.id_cat = :id';
+                    break;
+                case 'langValueByAttr':
+                    $sql = 'SELECT 
+                                c.id_attr,
+                                p.id_attr_va,
+								v.value_attr,
+                                lang.iso_lang
+                            FROM mc_attribute_value AS p
+							JOIN mc_attribute AS c ON(c.id_attr = p.id_attr)
+                            JOIN mc_attribute_value_content AS v ON(v.id_attr_va = p.id_attr_va)
+							JOIN mc_lang AS lang ON(v.id_lang = lang.id_lang)
+							WHERE lang.iso_lang = :iso AND c.id_attr = :id';
+                    break;
+                case 'langValueByCat':
+                    $sql = 'SELECT 
+                                c.id_attr,
+                                v.id_attr_va,
+								vc.value_attr,
+                                lang.iso_lang
+                            FROM mc_attribute_category as cat 
+                            JOIN mc_attribute AS c ON(c.id_attr = cat.id_attr)
+                            JOIN mc_attribute_value AS v ON(c.id_attr = v.id_attr)
+                            JOIN mc_attribute_value_content AS vc ON(vc.id_attr_va = v.id_attr_va)
+							JOIN mc_lang AS lang ON(vc.id_lang = lang.id_lang)
+							WHERE lang.iso_lang = :iso AND c.id_attr = :id';
+                    break;
+                case 'langAttr':
+                    $sql = 'SELECT 
+                                cat.id_attr_ca,
+								cat.id_attr,
+								c.type_attr,
+                                lang.iso_lang
+                            FROM mc_attribute_category as cat
+							JOIN mc_attribute AS p ON(cat.id_attr = p.id_attr)
+							JOIN mc_attribute_content AS c ON(c.id_attr = p.id_attr)
+							JOIN mc_lang AS lang ON(c.id_lang = lang.id_lang)
+							WHERE lang.iso_lang = :iso';
                     break;
             }
 

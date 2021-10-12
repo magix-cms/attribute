@@ -105,7 +105,7 @@ class plugins_attribute_admin extends plugins_attribute_db
             $params['section'] = 'pages';
             $params['idcolumn'] = 'id_attr';
             $params['activation'] = false;
-            $params['sortable'] = true;
+            $params['sortable'] = false;
             $params['checkbox'] = true;
             $params['edit'] = true;
             $params['dlt'] = true;
@@ -390,7 +390,7 @@ class plugins_attribute_admin extends plugins_attribute_db
                         $setEditData = $this->setItemValueData($setEditData);
                         $this->template->assign('attrvalue',$setEditData);
                         $defaultLanguage = $this->collectionLanguage->fetchData(array('context'=>'one','type'=>'default'));
-                        $this->getItems('attrCats',array('default_lang'=>$defaultLanguage['id_lang']),'all');
+                        $this->getItems('attrCats',array('default_lang'=>$defaultLanguage['id_lang'],'id'=>$this->edit),'all');
                         $this->getItems('cats',array('default_lang'=>$defaultLanguage['id_lang']),'all');
                         $this->template->display('edit.tpl');
                     }
