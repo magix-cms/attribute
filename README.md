@@ -12,3 +12,10 @@ Ajouter des attributs dans votre site.
 
 ### Infos
 Ce plugin est utilisé pour compléter d'autres plugins comme "cartpay" ou tout autre système ayant besoin d'attributs.
+
+### Exemple d'utilisation
+
+```smarty
+{attribute_data id=$product.id type="product"}
+<p>{$attribute.type} : {$attribute.name}</p>
+````

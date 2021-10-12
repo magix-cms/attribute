@@ -70,7 +70,36 @@ class plugins_attribute_public extends plugins_attribute_db
             return null;
         }
     }
+    /**
+     * @param $row
+     * @return array
+     */
+    private function setItemValue($row)
+    {
+        $data = array();
+        if ($row != null) {
+            $data['id'] = $row['id_attr_va'];
+            $data['type'] = $row['type_attr'];
+            $data['name'] = $row['value_attr'];
+            $data['iso'] = $row['iso_lang'];
+        }
+        return $data;
+    }
+    /**
+     * @return array|null
+     */
+    public function getBuildValue($id){
 
+        $collection = $this->getItems('langValueByProduct',
+            array('iso'=> $this->template->lang,'id'=> $id) ,'one',false);
+
+        if($collection != null) {
+
+            return $this->setItemValue($collection);
+        }else{
+            return null;
+        }
+    }
     /**
      * @param $row
      * @return array
@@ -82,9 +111,13 @@ class plugins_attribute_public extends plugins_attribute_db
             $data['id'] = $row['id_attr'];
             $data['name'] = $row['type_attr'];
             $collection = $this->getItems('langValueByCat',array('iso'=> $this->template->lang,'id'=> $row['id_attr']) ,'all',false);
-            foreach($collection as $key => $item){
-                $data['item'][$key]['id'] = $item['id_attr_va'];
-                $data['item'][$key]['value'] = $item['value_attr'];
+            if($collection != null) {
+                foreach ($collection as $key => $item) {
+                    $data['item'][$key]['id'] = $item['id_attr_va'];
+                    $data['item'][$key]['value'] = $item['value_attr'];
+                }
+            }else{
+                return null;
             }
             $data['iso'] = $row['iso_lang'];
 
@@ -94,7 +127,7 @@ class plugins_attribute_public extends plugins_attribute_db
     /**
      * @return array|null
      */
-    public function getBuildValue($id = null){
+    public function getBuildData($id = null){
         if($id != null) {
             $collection = $this->getItems('langAttrByCat', array('iso' => $this->template->lang, 'id' => $id), 'all', false);
         }else{
@@ -110,14 +143,4 @@ class plugins_attribute_public extends plugins_attribute_db
         }
         return $newarr;
     }
-
-    /**
-     *
-     */
-    /*public function run(){
-        $newarr = $this->getBuildValue();
-        print '<pre>';
-        print_r($newarr);
-        print '<pre>';
-    }*/
 }
