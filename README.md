@@ -17,5 +17,9 @@ Ce plugin est utilisé pour compléter d'autres plugins comme "cartpay" ou tout 
 
 ```smarty
 {attribute_data id=$product.id type="product"}
-<p>{$attribute.type} : {$attribute.name}</p>
+{if is_array($attribute) && !empty($attribute)}
+{foreach $attribute as $item}
+<p>{$item.type} : {$item.name}</p>
+{/foreach}
+{/if}
 ````

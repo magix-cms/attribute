@@ -152,6 +152,20 @@ class plugins_attribute_db
 							JOIN mc_lang AS lang ON(c.id_lang = lang.id_lang)
 							WHERE lang.iso_lang = :iso';
                     break;
+                case 'langValueByProduct':
+                    $sql = 'SELECT 
+                                ap.id_attr_p,
+								vc.value_attr,
+                                c.type_attr,
+                                lang.iso_lang
+                            FROM mc_attribute_product AS ap 
+                            JOIN mc_attribute_value AS v ON(ap.id_attr_va = v.id_attr_va)
+                            JOIN mc_attribute_value_content AS vc ON(vc.id_attr_va = v.id_attr_va)
+                                JOIN mc_attribute AS ac ON(ac.id_attr = v.id_attr)
+                                JOIN mc_attribute_content AS c ON(c.id_attr = ac.id_attr)
+							JOIN mc_lang AS lang ON(vc.id_lang = lang.id_lang AND c.id_lang = lang.id_lang)
+							WHERE lang.iso_lang = :iso AND ap.id_product = :id';
+                    break;
             }
 
             return $sql ? component_routing_db::layer()->fetchAll($sql, $params) : null;
@@ -198,20 +212,6 @@ class plugins_attribute_db
 							JOIN mc_lang AS lang ON(cc.id_lang = lang.id_lang)
 							WHERE cc.id_lang = :default_lang 
                             ORDER BY id_attr_ca DESC LIMIT 0,1';
-                    break;
-                case 'langValueByProduct':
-                    $sql = 'SELECT 
-                                ap.id_attr_p,
-								vc.value_attr,
-                                c.type_attr,
-                                lang.iso_lang
-                            FROM mc_attribute_product AS ap 
-                            JOIN mc_attribute_value AS v ON(ap.id_attr_va = v.id_attr_va)
-                            JOIN mc_attribute_value_content AS vc ON(vc.id_attr_va = v.id_attr_va)
-                                JOIN mc_attribute AS ac ON(ac.id_attr = v.id_attr)
-                                JOIN mc_attribute_content AS c ON(c.id_attr = ac.id_attr)
-							JOIN mc_lang AS lang ON(vc.id_lang = lang.id_lang)
-							WHERE lang.iso_lang = :iso AND ap.id_product = :id';
                     break;
             }
 

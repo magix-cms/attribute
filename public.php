@@ -91,11 +91,14 @@ class plugins_attribute_public extends plugins_attribute_db
     public function getBuildValue($id){
 
         $collection = $this->getItems('langValueByProduct',
-            array('iso'=> $this->template->lang,'id'=> $id) ,'one',false);
+            array('iso'=> $this->template->lang,'id'=> $id) ,'all',false);
 
         if($collection != null) {
-
-            return $this->setItemValue($collection);
+            $newarr = array();
+            foreach ($collection as &$item) {
+                $newarr[] = $this->setItemValue($item);
+            }
+            return $newarr;
         }else{
             return null;
         }
