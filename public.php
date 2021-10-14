@@ -1,13 +1,13 @@
 <?php
 /**
- * Class plugins_teams_public
+ * Class plugins_attribute_public
  */
 class plugins_attribute_public extends plugins_attribute_db
 {
     /**
      * @var object
      */
-    protected $template, $data;
+    protected $template, $data, $modelCatalog;
 
     /**
      * @var int $id
@@ -23,6 +23,7 @@ class plugins_attribute_public extends plugins_attribute_db
         $this->template = $t instanceof frontend_model_template ? $t : new frontend_model_template();
         $formClean = new form_inputEscape();
         $this->data = new frontend_model_data($this, $this->template);
+        $this->modelCatalog = new frontend_model_catalog($this->template);
 
         if (http_request::isGet('id')) $this->id = $formClean->numeric($_GET['id']);
     }
@@ -79,12 +80,14 @@ class plugins_attribute_public extends plugins_attribute_db
         $data = array();
         if ($row != null) {
             $data['id'] = $row['id_attr_va'];
+            //$data['id_product'] = $row['id_product'];
             $data['type'] = $row['type_attr'];
             $data['name'] = $row['value_attr'];
             $data['iso'] = $row['iso_lang'];
         }
         return $data;
     }
+
     /**
      * @return array|null
      */
@@ -145,5 +148,101 @@ class plugins_attribute_public extends plugins_attribute_db
             return null;
         }
         return $newarr;
+    }
+
+    /**
+     * @return array
+     * @throws Exception
+     */
+    public function getBuildProductList(){
+        $db_catalog = new frontend_db_catalog();
+        $conditions = ' WHERE lang.iso_lang = :iso
+						AND pc.published_p = 1 
+						AND (img.default_img = 1 OR img.default_img IS NULL) 
+						AND catalog.default_c = 1 
+						AND catalog.id_product IN (SELECT id_product FROM mc_catalog WHERE id_cat = :id_cat) 
+						ORDER BY catalog.order_p ASC';
+        $collection = $db_catalog->fetchData(
+            array('context' => 'all', 'type' => 'product', 'conditions' => $conditions),
+            array('iso' => $this->template->lang,'id_cat' => $this->id)
+        );
+        if($collection != null) {
+            // Retourne les id des produits
+            foreach ($collection as $item) {
+                $newItems[] = $item['id_product'];
+            }
+            $product_id = implode(",", $newItems);
+            // Liste les attributs disponible avec id_product
+            $attributes = $this->getItems('langValueInProduct',
+                array('iso' => $this->template->lang, 'id' => $product_id), 'all', false);
+            // crée un tableau sur base de l'id produit
+            foreach ($attributes as $item) {
+                $newAttr[$item['id_product']][] = $this->setItemValue($item);
+            }
+            // Ajoute les attributes au produit si disponible
+            foreach ($collection as &$row) {
+                $row['attributes'] = $newAttr[$row['id_product']];
+            }
+        }
+        $newarr = array();
+        foreach ($collection as $item) {
+            $newarr[] = $this->modelCatalog->setItemData($item,null,['attributes'=>'attributes']);
+        }
+        return $newarr;
+    }
+
+    /**
+     * @return array|null
+     * @throws Exception
+     */
+    public function getBuildProductItems()
+    {
+        $db_catalog = new frontend_db_catalog();
+
+        $collection = $db_catalog->fetchData(
+            array('context' => 'one', 'type' => 'product'),
+            array('iso' => $this->template->lang,'id' => $this->id)
+        );
+        // Ajoute les attributes au produit si disponible
+        $collection['attributes'] = $this->getBuildValue($this->id);
+
+        $imgCollection = $db_catalog->fetchData(
+            array('context' => 'all', 'type' => 'images'),
+            array('iso' => $this->template->lang,'id' => $this->id)
+        );
+        $associatedCollection = $db_catalog->fetchData(
+                array('context' => 'all', 'type' => 'similar'),
+                array('iso' => $this->template->lang,'id' => $this->id)
+            );
+        $newAttr = array();
+        $newItems = array();
+        if($associatedCollection != null) {
+            // Retourne les id des produits
+            foreach($associatedCollection as $item){
+                $newItems[] = $item['id_product'];
+            }
+            $product_id = implode(",", $newItems);
+            // Liste les attributs disponible avec id_product
+            $attributes = $this->getItems('langValueInProduct',
+                array('iso' => $this->template->lang, 'id' => $product_id), 'all', false);
+            // crée un tableau sur base de l'id produit
+            foreach ($attributes as $item) {
+                $newAttr[$item['id_product']][] = $this->setItemValue($item);
+            }
+            //print_r($newAttr);
+            // Ajoute les attributes au produit si disponible
+            foreach ($associatedCollection as &$row) {
+                $row['attributes'] = $newAttr[$row['id_product']];
+            }
+        }
+        if ($imgCollection != null) {
+            $collection['img'] = $imgCollection;
+        }
+
+        if ($associatedCollection != null) {
+            $collection['associated'] = $associatedCollection;
+        }
+
+        return $this->modelCatalog->setItemData($collection, null,['attributes'=>'attributes']);
     }
 }
