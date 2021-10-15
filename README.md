@@ -14,12 +14,29 @@ Ajouter des attributs dans votre site.
 Ce plugin est utilisé pour compléter d'autres plugins comme "cartpay" ou tout autre système ayant besoin d'attributs.
 
 ### Exemple d'utilisation
-
+#### Avec widget
 ```smarty
 {attribute_data id=$product.id type="product"}
 {if is_array($attribute) && !empty($attribute)}
 {foreach $attribute as $item}
 <p>{$item.type} : {$item.name}</p>
+{/foreach}
+{/if}
+````
+#### sans widget (override)
+Product
+```smarty
+{if is_array($product.attributes) && !empty($product.attributes)}
+{foreach $product.attributes as $item}
+<p>{$item.type} : {$item.name}</p>
+{/foreach}
+{/if}
+````
+Product loop
+```smarty
+{if is_array($item.attributes) && !empty($item.attributes)}
+{foreach $item.attributes as $key}
+<span>{$key.type} : {$key.name}</span>
 {/foreach}
 {/if}
 ````

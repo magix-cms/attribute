@@ -58,6 +58,7 @@ class plugins_attribute_admin extends plugins_attribute_db
         if(http_request::isPost('attrValue')){
             $this->attrValue = $formClean->arrayClean($_POST['attrValue']);
         }
+        if (http_request::isPost('attributes_id')) $this->attributes_id = $formClean->simpleClean($_POST['attributes_id']);
         if (http_request::isPost('id_attr_va')) $this->id_attr_va = $formClean->simpleClean($_POST['id_attr_va']);
         if (http_request::isPost('cats_id')) $this->cats_id = $formClean->simpleClean($_POST['cats_id']);
         if (http_request::isPost('id_attr_ca')) $this->id_attr_ca = $formClean->simpleClean($_POST['id_attr_ca']);
@@ -136,7 +137,7 @@ class plugins_attribute_admin extends plugins_attribute_db
             case 'value':
             case 'contentValue':
             case 'cat':
-            //case 'country':
+            case 'product':
                 parent::insert(
                     array(
                         'context' => $data['context'],
@@ -179,6 +180,7 @@ class plugins_attribute_admin extends plugins_attribute_db
             case 'delPages':
             case 'delValue':
             case 'delCat':
+            case 'delProduct':
                 parent::delete(
                     array(
                         'type' => $data['type']
@@ -301,6 +303,22 @@ class plugins_attribute_admin extends plugins_attribute_db
         return $arr;
     }
     /**
+     * @param $row
+     * @return array
+     */
+    private function setItemValue($row)
+    {
+        $data = array();
+        if ($row != null) {
+            $data['id'] = $row['id_attr_p'];
+            //$data['id_product'] = $row['id_product'];
+            $data['type'] = $row['type_attr'];
+            $data['name'] = $row['value_attr'];
+            $data['iso'] = $row['iso_lang'];
+        }
+        return $data;
+    }
+    /**
      * @throws Exception
      */
     public function run()
@@ -344,6 +362,7 @@ class plugins_attribute_admin extends plugins_attribute_db
                             $this->message->json_post_response(true, 'add', $display);
                         }
                     }elseif(isset($this->cats_id)){
+
                         $this->add(array(
                                 'type' => 'cat',
                                 'data' => array(
@@ -357,6 +376,23 @@ class plugins_attribute_admin extends plugins_attribute_db
 
                         $display = $this->template->fetch('loop/category.tpl');
                         $this->message->json_post_response(true, 'add', $display);
+
+                    }elseif(isset($this->attributes_id)){
+
+                        $this->add(array(
+                                'type' => 'product',
+                                'data' => array(
+                                    'id_attr_va' => $this->attributes_id,
+                                    'id_product' => $this->id_attr
+                                )
+                            )
+                        );
+                        $defaultLanguage = $this->collectionLanguage->fetchData(array('context' => 'one', 'type' => 'default'));
+                        $lastProduct = $this->getItems('lastProduct', array('default_lang' => $defaultLanguage['id_lang']), 'one', false);
+                        $this->template->assign('row',$this->setItemValue($lastProduct));
+                        $display = $this->template->fetch('loop/attribute.tpl');
+                        $this->message->json_post_response(true, 'add', $display);
+
                     }else{
                         $this->modelLanguage->getLanguage();
                         $this->template->display('add.tpl');
@@ -412,6 +448,16 @@ class plugins_attribute_admin extends plugins_attribute_db
                                 $this->del(
                                     array(
                                         'type' => 'delCat',
+                                        'data' => array(
+                                            'id' => $this->id_attr
+                                        )
+                                    )
+                                );
+                                break;
+                            case 'attribute':
+                                $this->del(
+                                    array(
+                                        'type' => 'delProduct',
                                         'data' => array(
                                             'id' => $this->id_attr
                                         )

@@ -185,6 +185,17 @@ class plugins_attribute_db
                     //$params = array();
                 unset($params['id']);
                     break;
+                case 'setPagesTree':
+                    $sql = "SELECT p.id_attr_va,v.value_attr ,c.id_attr AS id_parent, ac.type_attr AS name_parent
+							FROM mc_attribute_value AS p
+							JOIN mc_attribute AS c ON(c.id_attr = p.id_attr)
+                            JOIN mc_attribute_content AS ac ON(ac.id_attr = c.id_attr)
+                            JOIN mc_attribute_value_content AS v ON(v.id_attr_va = p.id_attr_va)
+							JOIN mc_lang AS lang ON(v.id_lang = lang.id_lang)
+							WHERE v.id_lang = :default_lang
+							GROUP BY p.id_attr_va 
+						ORDER BY name_parent ASC";
+                    break;
             }
 
             return $sql ? component_routing_db::layer()->fetchAll($sql, $params) : null;
@@ -232,6 +243,23 @@ class plugins_attribute_db
 							WHERE cc.id_lang = :default_lang 
                             ORDER BY id_attr_ca DESC LIMIT 0,1';
                     break;
+                case 'lastProduct':
+                    $sql = 'SELECT 
+                                ap.id_attr_p,
+                                ap.id_attr_va,
+                                ap.id_product,
+								vc.value_attr,
+                                c.type_attr,
+                                lang.iso_lang
+                            FROM mc_attribute_product AS ap 
+                            JOIN mc_attribute_value AS v ON(ap.id_attr_va = v.id_attr_va)
+                            JOIN mc_attribute_value_content AS vc ON(vc.id_attr_va = v.id_attr_va)
+                                JOIN mc_attribute AS ac ON(ac.id_attr = v.id_attr)
+                                JOIN mc_attribute_content AS c ON(c.id_attr = ac.id_attr)
+							JOIN mc_lang AS lang ON(vc.id_lang = lang.id_lang AND c.id_lang = lang.id_lang)
+							WHERE vc.id_lang = :default_lang 
+                            ORDER BY id_attr_p DESC LIMIT 0,1';
+                    break;
             }
 
             return $sql ? component_routing_db::layer()->fetch($sql, $params) : null;
@@ -268,6 +296,10 @@ class plugins_attribute_db
             case 'cat':
                 $sql = "INSERT INTO mc_attribute_category (id_attr, id_cat, date_register)
                         VALUE (:id_attr, :id_cat, NOW())";
+                break;
+            case 'product':
+                $sql = "INSERT INTO mc_attribute_product (id_attr_va, id_product, date_register)
+                        VALUE (:id_attr_va, :id_product, NOW())";
                 break;
         }
 
@@ -341,6 +373,11 @@ class plugins_attribute_db
             case 'delCat':
                 $sql = 'DELETE FROM mc_attribute_category
 						WHERE id_attr_ca IN ('.$params['id'].')';
+                $params = array();
+                break;
+            case 'delProduct':
+                $sql = 'DELETE FROM mc_attribute_product
+						WHERE id_attr_p IN ('.$params['id'].')';
                 $params = array();
                 break;
         }
