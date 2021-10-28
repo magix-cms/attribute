@@ -51,6 +51,14 @@
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-ph-12 col-md-4">
+            <div class="form-group">
+                <label for="price_p">{#price#|ucfirst} :</label>
+                <input type="text" class="form-control" id="price_p" name="price_p" value="" size="20" />
+            </div>
+        </div>
+    </div>
     <div class="form-group">
         <input type="hidden" name="id" value="{$page.id_product}">
         <button class="btn btn-main-theme" type="submit" name="action" value="add"><span class="fa fa-plus"></span> {#add#}</button>

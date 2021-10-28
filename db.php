@@ -156,6 +156,7 @@ class plugins_attribute_db
                     $sql = 'SELECT 
                                 ap.id_attr_p,
                                 ap.id_attr_va,
+                                ap.price_p,
 								vc.value_attr,
                                 c.type_attr,
                                 lang.iso_lang
@@ -172,6 +173,7 @@ class plugins_attribute_db
                                 ap.id_attr_p,
                                 ap.id_attr_va,
                                 ap.id_product,
+                                ap.price_p,
 								vc.value_attr,
                                 c.type_attr,
                                 lang.iso_lang
@@ -248,6 +250,7 @@ class plugins_attribute_db
                                 ap.id_attr_p,
                                 ap.id_attr_va,
                                 ap.id_product,
+                                ap.price_p,
 								vc.value_attr,
                                 c.type_attr,
                                 lang.iso_lang
@@ -298,8 +301,8 @@ class plugins_attribute_db
                         VALUE (:id_attr, :id_cat, NOW())";
                 break;
             case 'product':
-                $sql = "INSERT INTO mc_attribute_product (id_attr_va, id_product, date_register)
-                        VALUE (:id_attr_va, :id_product, NOW())";
+                $sql = "INSERT INTO mc_attribute_product (id_attr_va, id_product, price_p, date_register)
+                        VALUE (:id_attr_va, :id_product, :price_p, NOW())";
                 break;
         }
 

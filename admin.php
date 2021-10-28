@@ -4,7 +4,7 @@ class plugins_attribute_admin extends plugins_attribute_db
     public $edit, $action, $tabs, $search, $plugin, $controller;
     protected $message, $template, $header, $data, $modelLanguage, $collectionLanguage, $order, $upload, $config, $imagesComponent, $modelPlugins, $routingUrl, $makeFiles, $finder, $plugins;
     public $id_attr, $id_attr_va, $content, $pages, $img, $iso, $del_img, $ajax, $tableaction,
-        $tableform, $offset, $name_img, $type_attr, $value_attr, $attrData, $attrValue, $cats_id, $id_attr_ca;
+        $tableform, $offset, $name_img, $type_attr, $value_attr, $attrData, $attrValue, $cats_id, $id_attr_ca,$price_p;
 
     public $tableconfig = array(
         'all' => array(
@@ -62,6 +62,7 @@ class plugins_attribute_admin extends plugins_attribute_db
         if (http_request::isPost('id_attr_va')) $this->id_attr_va = $formClean->simpleClean($_POST['id_attr_va']);
         if (http_request::isPost('cats_id')) $this->cats_id = $formClean->simpleClean($_POST['cats_id']);
         if (http_request::isPost('id_attr_ca')) $this->id_attr_ca = $formClean->simpleClean($_POST['id_attr_ca']);
+        if (http_request::isPost('price_p')) $this->price_p = $formClean->simpleClean($_POST['price_p']);
         // --- Recursive Actions
         if (http_request::isGet('attr')) $this->pages = $formClean->arrayClean($_GET['attr']);
         # ORDER PAGE
@@ -383,7 +384,8 @@ class plugins_attribute_admin extends plugins_attribute_db
                                 'type' => 'product',
                                 'data' => array(
                                     'id_attr_va' => $this->attributes_id,
-                                    'id_product' => $this->id_attr
+                                    'id_product' => $this->id_attr,
+                                    'price_p' => (!empty($this->price_p)) ? number_format(str_replace(",", ".", $this->price_p), 2, '.', '') : NULL
                                 )
                             )
                         );

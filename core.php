@@ -144,6 +144,7 @@ class plugins_attribute_core extends plugins_attribute_db{
             $data['type'] = $row['type_attr'];
             $data['name'] = $row['value_attr'];
             $data['iso'] = $row['iso_lang'];
+            $data['price'] = $row['price_p'];
         }
         return $data;
     }
