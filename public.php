@@ -192,6 +192,35 @@ class plugins_attribute_public extends plugins_attribute_db
     }
 
     /**
+     * @param $collection
+     * @throws Exception
+     */
+    public function getBuildAttribute($collection){
+        if($collection != null) {
+            // Retourne les id des produits
+            foreach ($collection as $item) {
+                $newItems[] = $item['id_product'];
+            }
+            $product_id = implode(",", $newItems);
+            // Liste les attributs disponible avec id_product
+            $attributes = $this->getItems('langValueInProduct',
+                array('iso' => $this->template->lang, 'id' => $product_id), 'all', false);
+            // crée un tableau sur base de l'id produit
+            foreach ($attributes as $item) {
+                $newAttr[$item['id_product']][] = $this->setItemValue($item);
+            }
+            // Ajoute les attributes au produit si disponible
+            foreach ($collection as &$row) {
+                $row['attributes'] = $newAttr[$row['id_product']];
+            }
+        }
+        $newarr = array();
+        foreach ($collection as $item) {
+            $newarr[] = $this->modelCatalog->setItemData($item,null,['attributes'=>'attributes']);
+        }
+        return $newarr;
+    }
+    /**
      * @return array|null
      * @throws Exception
      */

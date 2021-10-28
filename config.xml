@@ -19,6 +19,7 @@
 		</authors>
 		<release>
 			<date_create>21/09/2021</date_create>
+			<date_update>18/10/2021</date_update>
 			<version>1.0</version>
 			<phase>Stable</phase>
 		</release>
@@ -26,6 +27,12 @@
 			<core>
 				<name>product</name>
 			</core>
+			<plugin>
+				<name>homecatalog</name>
+			</plugin>
+			<plugin>
+				<name>cartpay</name>
+			</plugin>
 		</bind>
 		<support>
 			<ticket href="https://github.com/magix-cms/magixcms/issues" />
