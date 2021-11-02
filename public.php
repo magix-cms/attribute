@@ -274,4 +274,33 @@ class plugins_attribute_public extends plugins_attribute_db
 
         return $this->modelCatalog->setItemData($collection, null,['attributes'=>'attributes']);
     }
+
+    /**
+     * @param $params
+     * @return int
+     */
+    public function impact_unit_price($params){
+        // Retourne le prix venant de l'attribut ou venant du produit si aucun attribut
+        $id_attr = $params['param']['attribute'];
+        $priceAttr = $this->getItems('priceByProduct',
+            array('id' => $id_attr, 'id_product' => $params['id_product']), 'one', false);
+
+        if($priceAttr['price_p'] != NULL){
+            $unit_price = $priceAttr['price_p'];//10;
+        }else{
+            $pPrice = $this->getItems('product_price',$params['id_product'],'one',false);
+            $unit_price = $pPrice['price_p'];
+        }
+        return $unit_price;
+    }
+
+    /**
+     * @param $params
+     * @return string
+     */
+    public function impact_param_value($params){
+        $attr = $this->getItems('paramValue',
+            array('id' => $params, 'iso' => $this->template->lang), 'one', false);
+        return $attr['type_attr'].':&nbsp;'.$attr['value_attr'];
+    }
 }

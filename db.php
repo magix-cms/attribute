@@ -263,6 +263,31 @@ class plugins_attribute_db
 							WHERE vc.id_lang = :default_lang 
                             ORDER BY id_attr_p DESC LIMIT 0,1';
                     break;
+                case 'priceByProduct':
+                    $sql = 'SELECT 
+                                ap.id_attr_p,
+                                ap.id_attr_va,
+                                ap.price_p
+								
+                            FROM mc_attribute_product AS ap 
+                            WHERE ap.id_product = :id_product AND ap.id_attr_va = :id';
+                    break;
+                case 'product_price':
+                    $sql = 'SELECT price_p FROM `mc_catalog_product` WHERE id_product = :id';
+                    break;
+                case 'paramValue':
+                    $sql = 'SELECT 
+                                v.id_attr_va,
+								vc.value_attr,
+                                c.type_attr,
+                                lang.iso_lang
+                            FROM mc_attribute_value AS v 
+                            JOIN mc_attribute_value_content AS vc ON(vc.id_attr_va = v.id_attr_va)
+                                JOIN mc_attribute AS ac ON(ac.id_attr = v.id_attr)
+                                JOIN mc_attribute_content AS c ON(c.id_attr = ac.id_attr)
+							JOIN mc_lang AS lang ON(vc.id_lang = lang.id_lang AND c.id_lang = lang.id_lang)
+							WHERE lang.iso_lang = :iso AND v.id_attr_va = :id';
+                    break;
             }
 
             return $sql ? component_routing_db::layer()->fetch($sql, $params) : null;
