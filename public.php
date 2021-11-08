@@ -41,6 +41,25 @@ class plugins_attribute_public extends plugins_attribute_db
         return $this->data->getItems($type, $id, $context, $assign);
     }
     /**
+     * Update data
+     * @param $data
+     * @throws Exception
+     */
+    private function add($data)
+    {
+        switch ($data['type']) {
+            case 'cartpay':
+                parent::insert(
+                    array(
+                        'context' => $data['context'],
+                        'type' => $data['type']
+                    ),
+                    $data['data']
+                );
+                break;
+        }
+    }
+    /**
      * @param $row
      * @return array
      */
@@ -300,7 +319,22 @@ class plugins_attribute_public extends plugins_attribute_db
      */
     public function impact_param_value($params){
         $attr = $this->getItems('paramValue',
-            array('id' => $params, 'iso' => $this->template->lang), 'one', false);
+            array('id' => $params['params'], 'iso' => $this->template->lang), 'one', false);
+        $cartpay = $this->getItems('cartpay',
+            array('id' => $params['items'], 'id_attr_va' => $attr['id_attr_va']), 'one', false);
+        //$attr['id_attr_va'];
+        if($cartpay == null){
+            $this->add(
+                array(
+                    'type' => 'cartpay',
+                    'data' => array(
+                        'id_items' => $params['items'],
+                        'id_attr_va' => $attr['id_attr_va']
+                    )
+                )
+            );
+        }
+        //print_r($params);
         return $attr['type_attr'].':&nbsp;'.$attr['value_attr'];
     }
 }

@@ -198,6 +198,23 @@ class plugins_attribute_db
 							GROUP BY p.id_attr_va 
 						ORDER BY name_parent ASC";
                     break;
+                case 'cartpay_product':
+                    $sql = 'SELECT item.id_items,item.quantity,
+                                IFNULL(map.price_p,p.price_p) AS price_p,
+                                mcpc.name_p,vc.value_attr
+                            FROM mc_cartpay_items AS item
+                            JOIN mc_catalog_product AS p ON(item.id_product = p.id_product)
+                            JOIN mc_catalog_product_content AS mcpc ON ( p.id_product = mcpc.id_product )
+                            LEFT JOIN mc_cartpay_attribute mca on (item.id_items = mca.id_items)
+                            LEFT JOIN mc_attribute_product map ON(p.id_product = map.id_product)
+                            LEFT JOIN mc_attribute_value AS v ON(mca.id_attr_va = v.id_attr_va)
+                            LEFT JOIN mc_attribute_value_content AS vc ON(vc.id_attr_va = v.id_attr_va)
+                                LEFT JOIN mc_attribute AS ac ON(ac.id_attr = v.id_attr)
+                                LEFT JOIN mc_attribute_content AS c ON(c.id_attr = ac.id_attr)
+							LEFT JOIN mc_lang AS lang ON(mcpc.id_lang = lang.id_lang AND vc.id_lang = lang.id_lang AND c.id_lang = lang.id_lang)
+                            WHERE mcpc.id_lang = :default_lang AND item.id_cart = :id
+                            GROUP BY item.id_items';
+                    break;
             }
 
             return $sql ? component_routing_db::layer()->fetchAll($sql, $params) : null;
@@ -288,6 +305,10 @@ class plugins_attribute_db
 							JOIN mc_lang AS lang ON(vc.id_lang = lang.id_lang AND c.id_lang = lang.id_lang)
 							WHERE lang.iso_lang = :iso AND v.id_attr_va = :id';
                     break;
+                case 'cartpay':
+                    $sql = 'SELECT * 
+                    FROM `mc_cartpay_attribute` WHERE id_items = :id AND id_attr_va = :id_attr_va';
+                    break;
             }
 
             return $sql ? component_routing_db::layer()->fetch($sql, $params) : null;
@@ -328,6 +349,10 @@ class plugins_attribute_db
             case 'product':
                 $sql = "INSERT INTO mc_attribute_product (id_attr_va, id_product, price_p, date_register)
                         VALUE (:id_attr_va, :id_product, :price_p, NOW())";
+                break;
+            case 'cartpay':
+                $sql = "INSERT INTO mc_cartpay_attribute (id_attr_va, id_items, date_register)
+                        VALUE (:id_attr_va, :id_items, NOW())";
                 break;
         }
 

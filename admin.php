@@ -319,6 +319,20 @@ class plugins_attribute_admin extends plugins_attribute_db
         }
         return $data;
     }
+
+    /**
+     * @param $params
+     * @return mixed
+     */
+    public function getProductData($params){
+        return $this->getItems('cartpay_product', $params, 'all',false);
+    }
+    public function getSchemeSale(){
+
+    }
+    public function getSchemeQuotation(){
+
+    }
     /**
      * @throws Exception
      */
