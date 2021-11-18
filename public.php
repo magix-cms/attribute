@@ -298,7 +298,7 @@ class plugins_attribute_public extends plugins_attribute_db
      * @param $params
      * @return int
      */
-    public function impact_unit_price($params){
+    public function replace_unit_price($params){
         // Retourne le prix venant de l'attribut ou venant du produit si aucun attribut
         $id_attr = $params['param']['attribute'];
         $priceAttr = $this->getItems('priceByProduct',
@@ -314,25 +314,21 @@ class plugins_attribute_public extends plugins_attribute_db
     }
 
     /**
-     * @param $params
+     * @param array $params
      * @return string
      */
-    public function impact_param_value($params){
-        $attr = $this->getItems('paramValue',
-            array('id' => $params['params'], 'iso' => $this->template->lang), 'one', false);
-        $cartpay = $this->getItems('cartpay',
-            array('id' => $params['items'], 'id_attr_va' => $attr['id_attr_va']), 'one', false);
+    public function get_param_value(array $params): string {
+        $attr = $this->getItems('paramValue', ['id' => $params['params'], 'iso' => $this->template->lang], 'one', false);
+        $cartpay = $this->getItems('cartpay', ['id' => $params['items'], 'id_attr_va' => $attr['id_attr_va']], 'one', false);
         //$attr['id_attr_va'];
-        if($cartpay == null){
-            $this->add(
-                array(
-                    'type' => 'cartpay',
-                    'data' => array(
-                        'id_items' => $params['items'],
-                        'id_attr_va' => $attr['id_attr_va']
-                    )
-                )
-            );
+        if(!empty($cartpay)) {
+            $this->add([
+				'type' => 'cartpay',
+				'data' => [
+					'id_items' => $params['items'],
+					'id_attr_va' => $attr['id_attr_va']
+				]
+			]);
         }
         //print_r($params);
         return $attr['type_attr'].':&nbsp;'.$attr['value_attr'];
