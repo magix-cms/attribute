@@ -40,17 +40,3 @@ Product loop
 {/foreach}
 {/if}
 ````
-Ad To Cart
-```smarty
-{if is_array($product.attributes) && !empty($product.attributes)}
-<div class="form-group">
-<label for="param[attribute]">{#ph_transport_city#|ucfirst}</label>
-<select name="param[attribute]" id="param[attribute]" class="form-control required" required>
-{*<option disabled selected>-- {#pn_transport_city#|ucfirst} --</option>*}
-{foreach $product.attributes as $item}
-<option value="{$item.id}">{$item.type} : {$item.name}</option>
-{/foreach}
-</select>
-</div>
-{/if}
-````

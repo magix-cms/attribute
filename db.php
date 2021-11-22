@@ -154,6 +154,7 @@ class plugins_attribute_db
                     break;
                 case 'langValueByProduct':
                     $sql = 'SELECT 
+                                ac.id_attr,
                                 ap.id_attr_p,
                                 ap.id_attr_va,
                                 ap.price_p,
@@ -166,10 +167,12 @@ class plugins_attribute_db
                                 JOIN mc_attribute AS ac ON(ac.id_attr = v.id_attr)
                                 JOIN mc_attribute_content AS c ON(c.id_attr = ac.id_attr)
 							JOIN mc_lang AS lang ON(vc.id_lang = lang.id_lang AND c.id_lang = lang.id_lang)
-							WHERE lang.iso_lang = :iso AND ap.id_product = :id';
+							WHERE lang.iso_lang = :iso AND ap.id_product = :id
+                            ORDER BY id_attr, id_attr_va';
                     break;
                 case 'langValueInProduct':
                     $sql = 'SELECT 
+                                ac.id_attr,
                                 ap.id_attr_p,
                                 ap.id_attr_va,
                                 ap.id_product,
@@ -183,7 +186,8 @@ class plugins_attribute_db
                                 JOIN mc_attribute AS ac ON(ac.id_attr = v.id_attr)
                                 JOIN mc_attribute_content AS c ON(c.id_attr = ac.id_attr)
 							JOIN mc_lang AS lang ON(vc.id_lang = lang.id_lang AND c.id_lang = lang.id_lang)
-							WHERE lang.iso_lang = :iso AND ap.id_product IN ('.$params['id'].')';
+							WHERE lang.iso_lang = :iso AND ap.id_product IN ('.$params['id'].')
+                            ORDER BY id_attr, id_attr_va';
                     //$params = array();
                 unset($params['id']);
                     break;

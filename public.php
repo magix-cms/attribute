@@ -96,11 +96,12 @@ class plugins_attribute_public extends plugins_attribute_db
      */
     private function setItemValue($row)
     {
-        $data = array();
-        if ($row != null) {
-            $data['id'] = $row['id_attr_va'];
+        $data = [];
+        if (!empty($row)) {
+            $data['id_type'] = $row['id_attr'];
             //$data['id_product'] = $row['id_product'];
             $data['type'] = $row['type_attr'];
+            $data['id'] = $row['id_attr_va'];
             $data['name'] = $row['value_attr'];
             $data['iso'] = $row['iso_lang'];
         }
@@ -112,16 +113,16 @@ class plugins_attribute_public extends plugins_attribute_db
      */
     public function getBuildValue($id){
 
-        $collection = $this->getItems('langValueByProduct',
-            array('iso'=> $this->template->lang,'id'=> $id) ,'all',false);
+        $collection = $this->getItems('langValueByProduct', ['iso'=> $this->template->lang,'id'=> $id],'all',false);
 
         if($collection != null) {
-            $newarr = array();
+            $newarr = [];
             foreach ($collection as &$item) {
-                $newarr[] = $this->setItemValue($item);
+                $newarr[$item['id_attr']][] = $this->setItemValue($item);
             }
             return $newarr;
-        }else{
+        }
+        else{
             return null;
         }
     }
@@ -155,15 +156,17 @@ class plugins_attribute_public extends plugins_attribute_db
     public function getBuildData($id = null){
         if($id != null) {
             $collection = $this->getItems('langAttrByCat', array('iso' => $this->template->lang, 'id' => $id), 'all', false);
-        }else{
+        }
+        else{
             $collection = $this->getItems('langAttr', array('iso' => $this->template->lang), 'all', false);
         }
+        $newarr = [];
         if($collection != null) {
-            $newarr = array();
             foreach ($collection as $item) {
                 $newarr[] = $this->setItemData($item);
             }
-        }else{
+        }
+        else{
             return null;
         }
         return $newarr;
@@ -192,11 +195,11 @@ class plugins_attribute_public extends plugins_attribute_db
             }
             $product_id = implode(",", $newItems);
             // Liste les attributs disponible avec id_product
-            $attributes = $this->getItems('langValueInProduct',
-                array('iso' => $this->template->lang, 'id' => $product_id), 'all', false);
+            $attributes = $this->getItems('langValueInProduct', ['iso' => $this->template->lang, 'id' => $product_id], 'all', false);
             // crée un tableau sur base de l'id produit
+            $newAttr = [];
             foreach ($attributes as $item) {
-                $newAttr[$item['id_product']][] = $this->setItemValue($item);
+                $newAttr[$item['id_product']][$item['type_attr']][] = $this->setItemValue($item);
             }
             // Ajoute les attributes au produit si disponible
             foreach ($collection as &$row) {
@@ -217,16 +220,17 @@ class plugins_attribute_public extends plugins_attribute_db
     public function getBuildAttribute($collection){
         if($collection != null) {
             // Retourne les id des produits
+            $newItems = [];
             foreach ($collection as $item) {
                 $newItems[] = $item['id_product'];
             }
             $product_id = implode(",", $newItems);
             // Liste les attributs disponible avec id_product
-            $attributes = $this->getItems('langValueInProduct',
-                array('iso' => $this->template->lang, 'id' => $product_id), 'all', false);
+            $attributes = $this->getItems('langValueInProduct', ['iso' => $this->template->lang, 'id' => $product_id], 'all', false);
             // crée un tableau sur base de l'id produit
+            $newAttr = [];
             foreach ($attributes as $item) {
-                $newAttr[$item['id_product']][] = $this->setItemValue($item);
+                $newAttr[$item['id_product']][$item['type_attr']][] = $this->setItemValue($item);
             }
             // Ajoute les attributes au produit si disponible
             foreach ($collection as &$row) {
@@ -248,22 +252,22 @@ class plugins_attribute_public extends plugins_attribute_db
         $db_catalog = new frontend_db_catalog();
 
         $collection = $db_catalog->fetchData(
-            array('context' => 'one', 'type' => 'product'),
-            array('iso' => $this->template->lang,'id' => $this->id)
+            ['context' => 'one', 'type' => 'product'],
+            ['iso' => $this->template->lang,'id' => $this->id]
         );
         // Ajoute les attributes au produit si disponible
         $collection['attributes'] = $this->getBuildValue($this->id);
 
         $imgCollection = $db_catalog->fetchData(
-            array('context' => 'all', 'type' => 'images'),
-            array('iso' => $this->template->lang,'id' => $this->id)
+            ['context' => 'all', 'type' => 'images'],
+            ['iso' => $this->template->lang,'id' => $this->id]
         );
         $associatedCollection = $db_catalog->fetchData(
-                array('context' => 'all', 'type' => 'similar'),
-                array('iso' => $this->template->lang,'id' => $this->id)
-            );
-        $newAttr = array();
-        $newItems = array();
+            ['context' => 'all', 'type' => 'similar'],
+            ['iso' => $this->template->lang,'id' => $this->id]
+        );
+        $newAttr = [];
+        $newItems = [];
         if($associatedCollection != null) {
             // Retourne les id des produits
             foreach($associatedCollection as $item){
@@ -271,11 +275,10 @@ class plugins_attribute_public extends plugins_attribute_db
             }
             $product_id = implode(",", $newItems);
             // Liste les attributs disponible avec id_product
-            $attributes = $this->getItems('langValueInProduct',
-                array('iso' => $this->template->lang, 'id' => $product_id), 'all', false);
+            $attributes = $this->getItems('langValueInProduct', ['iso' => $this->template->lang, 'id' => $product_id], 'all', false);
             // crée un tableau sur base de l'id produit
             foreach ($attributes as $item) {
-                $newAttr[$item['id_product']][] = $this->setItemValue($item);
+                $newAttr[$item['id_product']][$item['type_attr']][] = $this->setItemValue($item);
             }
             //print_r($newAttr);
             // Ajoute les attributes au produit si disponible
@@ -292,6 +295,14 @@ class plugins_attribute_public extends plugins_attribute_db
         }
 
         return $this->modelCatalog->setItemData($collection, null,['attributes'=>'attributes']);
+    }
+
+    /**
+     * @return string
+     */
+    public function add_to_cart_params(): string {
+        $this->template->assign('attributes',$this->getBuildValue($this->id));
+        return $this->template->fetch('attribute/add-to-cart.tpl');
     }
 
     /**
@@ -315,22 +326,26 @@ class plugins_attribute_public extends plugins_attribute_db
 
     /**
      * @param array $params
-     * @return string
+     * @return array
      */
-    public function get_param_value(array $params): string {
-        $attr = $this->getItems('paramValue', ['id' => $params['params'], 'iso' => $this->template->lang], 'one', false);
-        $cartpay = $this->getItems('cartpay', ['id' => $params['items'], 'id_attr_va' => $attr['id_attr_va']], 'one', false);
-        //$attr['id_attr_va'];
-        if(!empty($cartpay)) {
-            $this->add([
-				'type' => 'cartpay',
-				'data' => [
-					'id_items' => $params['items'],
-					'id_attr_va' => $attr['id_attr_va']
-				]
-			]);
+    public function get_param_value(array $params): array {
+        $attributesValues = [];
+        foreach($params['value'] as $id_attr => $id_attr_p) {
+            $attr = $this->getItems('paramValue', ['id' => $id_attr_p, 'iso' => $this->template->lang], 'one', false);
+            $attributesValues[$id_attr] = $attr['type_attr'].':&nbsp;'.$attr['value_attr'];
+
+            $cartpay = $this->getItems('cartpay', ['id' => $params['items'], 'id_attr_va' => $attr['id_attr_va']], 'one', false);
+
+            if(!empty($cartpay)) {
+                $this->add([
+                    'type' => 'cartpay',
+                    'data' => [
+                        'id_items' => $params['items'],
+                        'id_attr_va' => $attr['id_attr_va']
+                    ]
+                ]);
+            }
         }
-        //print_r($params);
-        return $attr['type_attr'].':&nbsp;'.$attr['value_attr'];
+        return $attributesValues;
     }
 }
