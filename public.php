@@ -311,7 +311,8 @@ class plugins_attribute_public extends plugins_attribute_db
      */
     public function replace_unit_price($params){
         // Retourne le prix venant de l'attribut ou venant du produit si aucun attribut
-        $id_attr = $params['param']['attribute'];
+		$attribute = $params['param']['attribute'];
+		$id_attr = is_array($attribute) ? end($attribute) : $attribute;
         $priceAttr = $this->getItems('priceByProduct',
             array('id' => $id_attr, 'id_product' => $params['id_product']), 'one', false);
 
