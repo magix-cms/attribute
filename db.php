@@ -83,7 +83,7 @@ class plugins_attribute_db
 							JOIN mc_lang AS lang ON(v.id_lang = lang.id_lang)
 							WHERE p.id_attr = :edit';
                     break;
-                case 'cats':
+                /*case 'cats':
                     $sql = 'SELECT 
 								c.id_cat,
 								cc.name_cat
@@ -91,7 +91,7 @@ class plugins_attribute_db
 							JOIN mc_catalog_cat_content AS cc ON(c.id_cat = cc.id_cat)
 							JOIN mc_lang AS lang ON(cc.id_lang = lang.id_lang)
 							WHERE cc.id_lang = :default_lang';
-                    break;
+                    break;*/
                 case 'attrCats':
                     $sql = 'SELECT 
                                 cat.id_attr_ca,
@@ -218,6 +218,18 @@ class plugins_attribute_db
 							LEFT JOIN mc_lang AS lang ON(mcpc.id_lang = lang.id_lang AND vc.id_lang = lang.id_lang AND c.id_lang = lang.id_lang)
                             WHERE mcpc.id_lang = :default_lang AND item.id_cart = :id
                             GROUP BY item.id_items';
+                    break;
+                case 'pagesPublishedSelect':
+                    $sql = "SELECT p.id_parent,p.id_cat, c.name_cat , ca.name_cat AS parent_cat
+							FROM mc_catalog_cat AS p
+								JOIN mc_catalog_cat_content AS c USING ( id_cat )
+								JOIN mc_lang AS lang ON ( c.id_lang = lang.id_lang )
+								LEFT JOIN mc_catalog_cat AS pa ON ( p.id_parent = pa.id_cat )
+								LEFT JOIN mc_catalog_cat_content AS ca ON ( pa.id_cat = ca.id_cat ) 
+								WHERE c.id_lang = :default_lang
+								AND c.published_cat = 1
+								GROUP BY p.id_cat 
+							ORDER BY p.id_cat DESC";
                     break;
             }
 
