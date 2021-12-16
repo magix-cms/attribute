@@ -327,11 +327,21 @@ class plugins_attribute_admin extends plugins_attribute_db
     public function getProductData($params){
         return $this->getItems('cartpay_product', $params, 'all',false);
     }
-    public function getSchemeSale(){
+    public function getSchemeSale(){}
+    public function getSchemeQuotation(){}
+    /**
+     * @return mixed
+     * @throws Exception
+     */
+    public function getCategory(){
 
-    }
-    public function getSchemeQuotation(){
+        $defaultLanguage = $this->collectionLanguage->fetchData(array('context'=>'one','type'=>'default'));
 
+        $list = $this->getItems('pagesPublishedSelect',array('default_lang'=> $defaultLanguage['id_lang']),'all',false);
+
+        $lists = $this->data->setPagesTree($list,'cat');
+
+        $this->template->assign('cats',$lists);
     }
     /**
      * @throws Exception
@@ -443,7 +453,8 @@ class plugins_attribute_admin extends plugins_attribute_db
                         $this->template->assign('attrvalue',$setEditData);
                         $defaultLanguage = $this->collectionLanguage->fetchData(array('context'=>'one','type'=>'default'));
                         $this->getItems('attrCats',array('default_lang'=>$defaultLanguage['id_lang'],'id'=>$this->edit),'all');
-                        $this->getItems('cats',array('default_lang'=>$defaultLanguage['id_lang']),'all');
+                        //$this->getItems('cats',array('default_lang'=>$defaultLanguage['id_lang']),'all');
+                        $this->getCategory();
                         $this->template->display('edit.tpl');
                     }
                     break;

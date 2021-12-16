@@ -22,11 +22,12 @@
                         </div>
                         <div id="filter-cats" class="list-to-filter tree-display">
                             <ul class="list-unstyled">
-                                {foreach $cats as $c}
+                                {*{foreach $cats as $c}
                                     <li class="filter-item items" data-filter="{$c.name_cat}" data-value="{$c.id_cat}" data-id="{$c.id_cat}">
                                         {$c.name_cat}&nbsp;{if $c.id_parent != '0'}<small>({$c.id_cat})</small>{/if}
                                     </li>
-                                {/foreach}
+                                {/foreach}*}
+                                {include file="loop/cats.tpl" cats=$cats}
                             </ul>
                             <div class="no-search-results">
                                 <div class="alert alert-warning" role="alert"><i class="fa fa-warning margin-right-sm"></i>{#hc_no_entry_for#|sprintf:"<strong>'<span></span>'</strong>"}</div>
