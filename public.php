@@ -102,6 +102,7 @@ class plugins_attribute_public extends plugins_attribute_db
             //$data['id_product'] = $row['id_product'];
             $data['type'] = $row['type_attr'];
             $data['id'] = $row['id_attr_va'];
+            $data['price'] = $row['price_p'];
             $data['name'] = $row['value_attr'];
             $data['iso'] = $row['iso_lang'];
         }

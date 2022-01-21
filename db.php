@@ -168,7 +168,7 @@ class plugins_attribute_db
                                 JOIN mc_attribute_content AS c ON(c.id_attr = ac.id_attr)
 							JOIN mc_lang AS lang ON(vc.id_lang = lang.id_lang AND c.id_lang = lang.id_lang)
 							WHERE lang.iso_lang = :iso AND ap.id_product = :id
-                            ORDER BY id_attr, id_attr_va';
+                            ORDER BY order_attr_p';
                     break;
                 case 'langValueInProduct':
                     $sql = 'SELECT 
@@ -362,13 +362,17 @@ class plugins_attribute_db
                 $sql = "INSERT INTO mc_attribute_category (id_attr, id_cat, date_register)
                         VALUE (:id_attr, :id_cat, NOW())";
                 break;
-            case 'product':
+            /*case 'product':
                 $sql = "INSERT INTO mc_attribute_product (id_attr_va, id_product, price_p, date_register)
                         VALUE (:id_attr_va, :id_product, :price_p, NOW())";
-                break;
+                break;*/
             case 'cartpay':
                 $sql = "INSERT INTO mc_cartpay_attribute (id_attr_va, id_items, date_register)
                         VALUE (:id_attr_va, :id_items, NOW())";
+                break;
+            case 'product':
+                $sql = "INSERT INTO mc_attribute_product (id_attr_va, id_product, price_p,date_register, order_attr_p)
+                        SELECT :id_attr_va, :id_product, :price_p, NOW(), COUNT(id_attr_va) FROM mc_attribute_product WHERE id_product = '".$params['id_product']."'";
                 break;
         }
 
@@ -405,6 +409,11 @@ class plugins_attribute_db
 						SET 
 							value_attr = :value_attr
                 		WHERE id_attr_va = :id_attr_va AND id_lang = :id_lang';
+                break;
+            case 'order':
+                $sql = 'UPDATE mc_attribute_product 
+						SET order_attr_p = :order_attr_p
+						WHERE id_attr_p = :id_attr_p';
                 break;
         }
 

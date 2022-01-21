@@ -66,7 +66,7 @@ class plugins_attribute_admin extends plugins_attribute_db
         // --- Recursive Actions
         if (http_request::isGet('attr')) $this->pages = $formClean->arrayClean($_GET['attr']);
         # ORDER PAGE
-        if (http_request::isPost('attr')) $this->order = $formClean->arrayClean($_POST['attr']);
+        if (http_request::isPost('attribute')) $this->order = $formClean->arrayClean($_POST['attribute']);
         if (http_request::isGet('plugin')) $this->plugin = $formClean->simpleClean($_GET['plugin']);
         # JSON LINK (TinyMCE)
         //if (http_request::isGet('iso')) $this->iso = $formClean->simpleClean($_GET['iso']);
@@ -160,6 +160,7 @@ class plugins_attribute_admin extends plugins_attribute_db
             case 'page':
             case 'contentPage':
             case 'contentValue':
+            case 'order':
                 parent::update(
                     array(
                         'context' => $data['context'],
@@ -344,6 +345,14 @@ class plugins_attribute_admin extends plugins_attribute_db
         $this->template->assign('cats',$lists);
     }
     /**
+     * @param $type
+     */
+    protected function order(){
+        for ($i = 0; $i < count($this->order); $i++) {
+            $this->upd(['type' => 'order', 'data' => ['id_attr_p' => $this->order[$i], 'order_attr_p' => $i]]);
+        }
+    }
+    /**
      * @throws Exception
      */
     public function run()
@@ -501,6 +510,11 @@ class plugins_attribute_admin extends plugins_attribute_db
                                 )
                             )
                         );
+                    }
+                    break;
+                case 'order':
+                    if (isset($this->order) && is_array($this->order)) {
+                        $this->order();
                     }
                     break;
             }

@@ -1,7 +1,7 @@
 {extends file="catalog/{$smarty.get.controller}/edit.tpl"}
 {block name="plugin:content"}
     {*<pre>{$attrvalue|print_r}</pre>*}
-    {include file="section/form/list-form.tpl" controller="attribute" sub="attribute" controller_extend=true dir_controller="" data=$attrvalue id=$attrvalue.id class_form="col-ph-12 col-lg-6" class_table="col-ph-12 col-lg-6"}
+    {include file="form/list-form.tpl" controller="attribute" sub="attribute" sortable=true controller_extend=true dir_controller="" data=$attrvalue id=$attrvalue.id class_form="col-ph-12 col-lg-6" class_table="col-ph-12 col-lg-6"}
     {include file="modal/delete.tpl" controller="attribute" data_type='attribute' title={#modal_delete_title#|ucfirst} info_text=true delete_message={#delete_pages_message#}}
 {/block}
 {block name="foot"}
@@ -30,7 +30,7 @@
             {
                 console.log("attribute is not defined");
             }else{
-                attribute.run(iso);
+                attribute.run("{$smarty.server.SCRIPT_NAME}?controller=attribute");
             }
         });
     </script>

@@ -45,7 +45,8 @@ CREATE TABLE IF NOT EXISTS `mc_attribute_product` (
     `id_attr_p` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
     `id_attr_va` int(7) UNSIGNED NOT NULL,
     `id_product` int(11) UNSIGNED NOT NULL,
-    `price_p` decimal(12,0) NULL,
+    `price_p` decimal(12,2) DEFAULT NULL,
+    `order_attr_p` smallint(5) UNSIGNED NOT NULL,
     `date_register` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (`id_attr_p`),
     KEY `id_attr_va` (`id_attr_va`)
