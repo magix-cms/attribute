@@ -418,7 +418,7 @@ class plugins_attribute_admin extends plugins_attribute_db
                                 'data' => array(
                                     'id_attr_va' => $this->attributes_id,
                                     'id_product' => $this->id_attr,
-                                    'price_p' => (!empty($this->price_p)) ? number_format(str_replace(",", ".", $this->price_p), 2, '.', '') : NULL
+                                    'price_p' => (!empty($this->price_p)) ? number_format(str_replace(",", ".", $this->price_p), 4, '.', '') : NULL
                                 )
                             )
                         );
