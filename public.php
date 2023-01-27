@@ -332,13 +332,15 @@ class plugins_attribute_public extends plugins_attribute_db
      */
     public function get_param_value(array $params): array {
         $attributesValues = [];
+        $logger = new debug_logger(MP_LOG_DIR);
+
         foreach($params['value'] as $id_attr => $id_attr_p) {
             $attr = $this->getItems('paramValue', ['id' => $id_attr_p, 'iso' => $this->template->lang], 'one', false);
             $attributesValues[$id_attr] = $attr['type_attr'].':&nbsp;'.$attr['value_attr'];
 
             $cartpay = $this->getItems('cartpay', ['id' => $params['items'], 'id_attr_va' => $attr['id_attr_va']], 'one', false);
-
-            if(!empty($cartpay)) {
+            //$logger->tracelog(json_encode($cartpay));
+            if(empty($cartpay)) {
                 $this->add([
                     'type' => 'cartpay',
                     'data' => [
