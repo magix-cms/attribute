@@ -297,7 +297,51 @@ class plugins_attribute_public extends plugins_attribute_db
 
         return $this->modelCatalog->setItemData($collection, null,['attributes'=>'attributes']);
     }
+    /**
+     * @param array $rawData
+     * @return array
+     */
+    public function setAttributesData(array $rawData): array {
+        $data = [];
 
+        if (!empty($rawData)) {
+            foreach ($rawData as $key => $value) {
+
+                $data[$value['id_attr']][$key]['id_type'] = $value['id_attr'];
+                $data[$value['id_attr']][$key]['type'] = $value['type_attr'];
+                $data[$value['id_attr']][$key]['id'] = $value['id_attr_va'];
+                $data[$value['id_attr']][$key]['price'] = $value['price_p'];
+                $data[$value['id_attr']][$key]['name'] = $value['value_attr'];
+                $data[$value['id_attr']][$key]['iso'] = $value['iso_lang'];
+            }
+        }
+
+        return $data;
+    }
+    /**
+     * @param array $data
+     * @return array
+     */
+    public function extendProduct(array $data): array {
+        return $this->setAttributesData($data);
+    }
+    /**
+     * @param array $data
+     * @return array
+     */
+    public function extendProductData(array $data) : array{
+        $extend['newRow'] = ['attributes' => 'attributes'];
+        $extend['collection'] = 'attributes';
+        if (http_request::isGet('id')) $this->id = form_inputEscape::numeric($_GET['id']);
+        if(!empty($data)) {
+            $collection = $this->getItems('langValueByProduct', ['iso'=> $this->template->lang,'id' => $this->id ?? $data['id_product']],'all',false);
+
+            //$videoCollection = $this->getitems('videos',['id' => $this->id ?? $data['id_product']],'all',false);
+            $product = $this->extendProduct($collection);
+            $extend['data'] = empty($product) ? [] : $product;
+        }
+        return $extend;
+    }
     /**
      * @return string
      */

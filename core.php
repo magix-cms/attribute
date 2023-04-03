@@ -81,7 +81,6 @@ class plugins_attribute_core extends plugins_attribute_db{
     {
         return $this->template->getConfigVars('attribute_plugin');
     }
-
     /**
      * @return mixed
      * @throws Exception

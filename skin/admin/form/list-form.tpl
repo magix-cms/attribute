@@ -6,7 +6,7 @@
     {$sortable = false}
 {/if}
 <div class="row">
-    <form id="add_{$sub}" action="{$url}/{baseadmin}/index.php?controller={if $controller_extend}{$controller}{else}{$smarty.get.controller}{/if}&amp;action=add&tabs={$sub}&edit={$id}" data-sub="{$sub}" method="post" class="validate_form add_to_list {$class_form}">
+    <form id="add_{$sub}" action="{$url}/{baseadmin}/index.php?controller={if $controller_extend}{$controller}{else}{$smarty.get.controller}{/if}&amp;action=add&tabs={$sub}&edit={if !empty($id)}{$id}{else}{$smarty.get.edit}{/if}" data-sub="{$sub}" method="post" class="validate_form add_to_list {$class_form}">
         {include file="{$dir_controller}{if !empty($dir_controller)}/{/if}form/{$sub}.tpl" editableRow=false}
     </form>
     <div class="{$class_table}">

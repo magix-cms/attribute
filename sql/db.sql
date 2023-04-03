@@ -73,6 +73,3 @@ ALTER TABLE `mc_attribute_product` ADD FOREIGN KEY (`id_attr_va`) REFERENCES `mc
 ALTER TABLE `mc_cartpay_attribute` ADD FOREIGN KEY (`id_attr_va`) REFERENCES `mc_attribute_product`(`id_attr_va`) ON DELETE CASCADE ON UPDATE CASCADE;
 
 ALTER TABLE `mc_cartpay_attribute` ADD FOREIGN KEY (`id_items`) REFERENCES `mc_cartpay_items`(`id_items`) ON DELETE CASCADE ON UPDATE RESTRICT;
-
-INSERT INTO `mc_admin_access` (`id_role`, `id_module`, `view`, `append`, `edit`, `del`, `action`)
-SELECT 1, m.id_module, 1, 1, 1, 1, 1 FROM mc_module as m WHERE name = 'attribute';

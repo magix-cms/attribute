@@ -126,13 +126,12 @@ class plugins_attribute_admin extends plugins_attribute_db
         );
     }
     /**
-     * Update data
-     * @param $data
+     * add data
+     * @param $config
      * @throws Exception
      */
-    private function add($data)
-    {
-        switch ($data['type']) {
+    private function add(array $config) {
+        switch ($config['type']) {
             case 'page':
             case 'contentPage':
             case 'value':
@@ -140,34 +139,26 @@ class plugins_attribute_admin extends plugins_attribute_db
             case 'cat':
             case 'product':
                 parent::insert(
-                    array(
-                        'context' => $data['context'],
-                        'type' => $data['type']
-                    ),
-                    $data['data']
+                    ['type' => $config['type']],
+                    $config['data']
                 );
                 break;
         }
     }
     /**
-     * Mise a jour des données
-     * @param $data
-     * @throws Exception
+     * Update data
+     * @param array $config
      */
-    private function upd($data)
-    {
-        switch ($data['type']) {
+    private function upd(array $config) {
+        switch ($config['type']) {
             case 'page':
             case 'contentPage':
             case 'contentValue':
             case 'order':
-                parent::update(
-                    array(
-                        'context' => $data['context'],
-                        'type' => $data['type']
-                    ),
-                    $data['data']
-                );
+            parent::update(
+                ['type' => $config['type']],
+                $config['data']
+            );
                 break;
         }
     }
@@ -353,6 +344,105 @@ class plugins_attribute_admin extends plugins_attribute_db
         }
     }
     /**
+     * @return array
+     */
+    public function extendTablesEditArray(): array {
+        return ['mc_attribute_product','mc_cartpay_attribute','mc_attribute_value','mc_attribute_value_content','mc_attribute','mc_attribute_content'];
+    }
+    /**
+     * @return array
+     */
+    public function extendColumnsEditArray(): array {
+        return ['value_attr','value_price'];
+    }
+    public function unsetAssignEditArray(): array{
+        return ['price_p'];
+    }
+    /**
+     * @return array
+     */
+    public function setAssignEditArray(): array {
+        return [
+            2 => [
+                'value_attr'  => ['title' => 'name'],
+                'value_price' => ['title' => 'name','type' => 'price','input' => null]
+            ]
+        ];
+    }
+    /**
+     * @return array
+     */
+    public function extendEditListingQuery(): array {
+        return [
+            'select' => [
+                'mavc.value_attr',
+                'IFNULL(map.price_p,mcp.price_p) AS value_price'
+            ],
+            'join' => [
+                ['type' => 'LEFT JOIN',
+                    'table' => 'mc_cartpay_attribute',
+                    'as' => 'mca',
+                    'on' => [
+                        'table' => 'mci',
+                        'key' => 'id_items'
+                    ]
+                ],
+                ['type' => 'LEFT JOIN',
+                    'table' => 'mc_attribute_product',
+                    'as' => 'map',
+                    'on' => [
+                        [
+                            'table' => 'mcp',
+                            'key' => 'id_product'
+                        ],
+                        [
+                            'and' => 'AND',
+                            'table' => 'mca',
+                            'key' => 'id_attr_va',
+                        ]
+                    ]
+                ],
+                ['type' => 'LEFT JOIN',
+                    'table' => 'mc_attribute_value',
+                    'as' => 'mav',
+                    'on' => [
+                        'table' => 'mca',
+                        'key' => 'id_attr_va'
+                    ]
+                ],
+                ['type' => 'LEFT JOIN',
+                    'table' => 'mc_attribute_value_content',
+                    'as' => 'mavc',
+                    'on' => [
+                        'table' => 'mav',
+                        'key' => 'id_attr_va'
+                    ]
+                ],
+                ['type' => 'LEFT JOIN',
+                    'table' => 'mc_attribute',
+                    'as' => 'ma',
+                    'on' => [
+                        'table' => 'mav',
+                        'key' => 'id_attr'
+                    ]
+                ],
+                ['type' => 'LEFT JOIN',
+                    'table' => 'mc_attribute_content',
+                    'as' => 'mac',
+                    'on' => [
+                        'table' => 'ma',
+                        'key' => 'id_attr'
+                    ]
+                ]
+            ],
+            'where' => [
+                [
+                    'type' => 'AND',
+                    'condition' => 'mavc.id_lang = mcpc.id_lang'
+                ]
+            ]];
+    }
+    /**
      * @throws Exception
      */
     public function run()
@@ -364,10 +454,8 @@ class plugins_attribute_admin extends plugins_attribute_db
                 case 'add':
                     if(isset($this->attrData)) {
                         $this->add(array(
-                                'type' => 'page'/*,
-                                'data' => array(
-                                    'type_attr' => $this->attrData['type_attr']
-                                )*/
+                                'type' => 'page',
+                                'data' => []
                             )
                         );
                         $page = $this->getItems('root',null,'one',false);

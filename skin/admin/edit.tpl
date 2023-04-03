@@ -29,7 +29,12 @@
                             {include file="form/edit.tpl"}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="value">
-                            {include file="section/form/list-form.tpl" controller="attribute" sub="value" controller_extend=false dir_controller="" data=$attrvalue id=$attrvalue.id_attr_va class_form="col-ph-12 col-lg-4" class_table="col-ph-12 col-lg-8"}
+                            {if !empty($attrvalue.id_attr_va)}
+                                {$id = $attrvalue.id_attr_va}
+                            {else}
+                                {$id = $smarty.get.edit}
+                            {/if}
+                            {include file="section/form/list-form.tpl" controller="attribute" sub="value" controller_extend=false dir_controller="" data=$attrvalue id=$id class_form="col-ph-12 col-lg-4" class_table="col-ph-12 col-lg-8"}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="category">
                             {include file="section/form/list-form.tpl" controller="attribute" sub="category" controller_extend=false dir_controller="" data=$attrCats id=$attrCats.id_attr_ca class_form="col-ph-12 col-lg-4" class_table="col-ph-12 col-lg-8"}
