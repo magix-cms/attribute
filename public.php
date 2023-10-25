@@ -5,20 +5,30 @@
 class plugins_attribute_public extends plugins_attribute_db
 {
     /**
-     * @var object
+     * @var frontend_model_template $template
+     * @var frontend_model_data $data
+     * @var http_header $header
+     * @var filter_sanitize $sanitize
+     * @var frontend_model_mail $mail
+     * @var frontend_model_setting $settings
+     * @var frontend_model_domain $modelDomain
+     * @var frontend_model_module $module
      */
-    protected $template, $data, $modelCatalog;
+    protected frontend_model_template $template;
+    protected frontend_model_data $data;
+    protected frontend_model_catalog $modelCatalog;
 
     /**
      * @var int $id
      */
-    protected $id;
+    public int $id;
+    public string $lang;
 
     /**
      * frontend_controller_home constructor.
-     * @param stdClass $t
+     * @param frontend_model_template|null $t
      */
-    public function __construct($t = null)
+    public function __construct(frontend_model_template $t = null)
     {
         $this->template = $t instanceof frontend_model_template ? $t : new frontend_model_template();
         $formClean = new form_inputEscape();
@@ -32,12 +42,11 @@ class plugins_attribute_public extends plugins_attribute_db
      * Assign data to the defined variable or return the data
      * @param string $type
      * @param string|int|null $id
-     * @param string $context
+     * @param string|null $context
      * @param boolean $assign
      * @return mixed
      */
-    private function getItems($type, $id = null, $context = null, $assign = true)
-    {
+    private function getItems(string $type, $id = null, string $context = null, $assign = true) {
         return $this->data->getItems($type, $id, $context, $assign);
     }
     /**
@@ -80,7 +89,7 @@ class plugins_attribute_public extends plugins_attribute_db
         $collection = $this->getItems('langAttrByCat',array('iso'=> $this->template->lang,'id'=> $id) ,'all',false);
 
         if($collection != null) {
-            $newarr = array();
+            $newarr = [];
             foreach ($collection as &$item) {
                 $newarr[] = $this->setItemAttr($item);
             }
