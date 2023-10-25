@@ -51,7 +51,6 @@ class plugins_attribute_public extends plugins_attribute_db
             case 'cartpay':
                 parent::insert(
                     array(
-                        'context' => $data['context'],
                         'type' => $data['type']
                     ),
                     $data['data']
@@ -395,5 +394,20 @@ class plugins_attribute_public extends plugins_attribute_db
             }
         }
         return $attributesValues;
+    }
+
+    /**
+     * @param int $id
+     * @return array
+     */
+    public function getRetreiveParam(int $id) :array{
+        $cartpay = $this->getItems('cartpay', ['id' => $id], 'all', false);
+        $data = [];
+        $i = 1;
+        foreach($cartpay as $key => $item){
+            $data['attribute'][$i] = $item['id_attr_va'];
+            $i++;
+        }
+        return $data;
     }
 }

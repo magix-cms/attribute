@@ -1,6 +1,5 @@
 <?php
-class plugins_attribute_admin extends plugins_attribute_db
-{
+class plugins_attribute_admin extends plugins_attribute_db {
     public $edit, $action, $tabs, $search, $plugin, $controller;
     protected $message, $template, $header, $data, $modelLanguage, $collectionLanguage, $order, $upload, $config, $imagesComponent, $modelPlugins, $routingUrl, $makeFiles, $finder, $plugins;
     public $id_attr, $id_attr_va, $content, $pages, $img, $iso, $del_img, $ajax, $tableaction,
@@ -10,10 +9,11 @@ class plugins_attribute_admin extends plugins_attribute_db
         'all' => array(
             'id_attr',
             'type_attr' => array('title' => 'name'),
-            'num_value' => array('title' => 'name','input' => null,'class' => ''),
+            'id_attr_va' => array('title' => 'num_value','input' => null,'class' => ''),
             'date_register'
         )
     );
+
     /**
      * frontend_controller_home constructor.
      */
@@ -71,6 +71,7 @@ class plugins_attribute_admin extends plugins_attribute_db
         # JSON LINK (TinyMCE)
         //if (http_request::isGet('iso')) $this->iso = $formClean->simpleClean($_GET['iso']);
     }
+
     /**
      * Assign data to the defined variable or return the data
      * @param string $type
@@ -83,6 +84,7 @@ class plugins_attribute_admin extends plugins_attribute_db
     private function getItems($type, $id = null, $context = null, $assign = true, $pagination = false) {
         return $this->data->getItems($type, $id, $context, $assign, $pagination);
     }
+
     /**
      * Method to override the name of the plugin in the admin menu
      * @return string
@@ -91,6 +93,7 @@ class plugins_attribute_admin extends plugins_attribute_db
     {
         return $this->template->getConfigVars('attribute_plugin');
     }
+
     /**
      * @param $ajax
      * @return mixed
@@ -125,6 +128,7 @@ class plugins_attribute_admin extends plugins_attribute_db
             'params' => $params
         );
     }
+
     /**
      * add data
      * @param $config
@@ -145,6 +149,7 @@ class plugins_attribute_admin extends plugins_attribute_db
                 break;
         }
     }
+
     /**
      * Update data
      * @param array $config
@@ -162,6 +167,7 @@ class plugins_attribute_admin extends plugins_attribute_db
                 break;
         }
     }
+
     /**
      * Insertion de données
      * @param $data
@@ -184,6 +190,7 @@ class plugins_attribute_admin extends plugins_attribute_db
                 break;
         }
     }
+
     /**
      * @param $id
      * @return void
@@ -217,6 +224,7 @@ class plugins_attribute_admin extends plugins_attribute_db
         }
         //$this->message->json_post_response(true, 'update', array('result'=>$id));
     }
+
     /**
      * @param $id
      * @return void
@@ -250,6 +258,7 @@ class plugins_attribute_admin extends plugins_attribute_db
         }
         //$this->message->json_post_response(true, 'update', array('result'=>$id));
     }
+
     /**
      * @param $data
      * @return array
@@ -272,6 +281,7 @@ class plugins_attribute_admin extends plugins_attribute_db
         }
         return $arr;
     }
+
     /**
      * @param $data
      * @return array
@@ -295,6 +305,7 @@ class plugins_attribute_admin extends plugins_attribute_db
         }
         return $arr;
     }
+
     /**
      * @param $row
      * @return array
@@ -319,22 +330,22 @@ class plugins_attribute_admin extends plugins_attribute_db
     public function getProductData($params){
         return $this->getItems('cartpay_product', $params, 'all',false);
     }
+
     public function getSchemeSale(){}
+
     public function getSchemeQuotation(){}
+
     /**
      * @return mixed
      * @throws Exception
      */
-    public function getCategory(){
-
+    public function getCategory() {
         $defaultLanguage = $this->collectionLanguage->fetchData(array('context'=>'one','type'=>'default'));
-
         $list = $this->getItems('pagesPublishedSelect',array('default_lang'=> $defaultLanguage['id_lang']),'all',false);
-
         $lists = $this->data->setPagesTree($list,'cat');
-
         $this->template->assign('cats',$lists);
     }
+
     /**
      * @param $type
      */
@@ -343,37 +354,42 @@ class plugins_attribute_admin extends plugins_attribute_db
             $this->upd(['type' => 'order', 'data' => ['id_attr_p' => $this->order[$i], 'order_attr_p' => $i]]);
         }
     }
+
     /**
      * @return array
      */
     public function extendTablesEditArray(): array {
         return ['mc_attribute_product','mc_cartpay_attribute','mc_attribute_value','mc_attribute_value_content','mc_attribute','mc_attribute_content'];
     }
+
     /**
      * @return array
      */
     public function extendColumnsEditArray(): array {
-        return ['value_attr','value_price'];
+        return ['value_attr'];
     }
-    public function unsetAssignEditArray(): array{
+
+    /*public function unsetAssignEditArray(): array{
         return ['price_p'];
-    }
+    }*/
+
     /**
      * @return array
      */
     public function setAssignEditArray(): array {
         return [
-            2 => [
-                'value_attr'  => ['title' => 'name'],
-                'value_price' => ['title' => 'name','type' => 'price','input' => null]
+            3 => [
+                'value_attr'  => ['title' => 'name']/*,
+                'value_price' => ['title' => 'name','type' => 'price','input' => null]*/
             ]
         ];
     }
+
     /**
      * @return array
      */
-    public function extendEditListingQuery(): array {
-        return [
+    public function extendEditListingQuery($id,$id_product,$price): array {
+        /*return [
             'select' => [
                 'mavc.value_attr',
                 'IFNULL(map.price_p,mcp.price_p) AS value_price'
@@ -414,9 +430,17 @@ class plugins_attribute_admin extends plugins_attribute_db
                     'table' => 'mc_attribute_value_content',
                     'as' => 'mavc',
                     'on' => [
+                        [
                         'table' => 'mav',
                         'key' => 'id_attr_va'
+                        ],
+                        [
+                            'and' => 'AND',
+                            'table' => 'mcpc',
+                            'key' => 'id_lang',
+                        ]
                     ]
+                    //mavc.id_lang = mcpc.id_lang
                 ],
                 ['type' => 'LEFT JOIN',
                     'table' => 'mc_attribute',
@@ -434,14 +458,35 @@ class plugins_attribute_admin extends plugins_attribute_db
                         'key' => 'id_attr'
                     ]
                 ]
-            ],
+            ]
             'where' => [
                 [
                     'type' => 'AND',
                     'condition' => 'mavc.id_lang = mcpc.id_lang'
                 ]
-            ]];
+            ]];*/
+        $defaultLanguage = $this->collectionLanguage->fetchData(array('context'=>'one','type'=>'default'));
+        $params = $this->getItems('extendParamValue',array('default_lang'=> $defaultLanguage['id_lang'],'id'=>$id,'id_product'=>$id_product),'all',false);
+        $extendParams = [];
+        if($params != null) {
+            foreach ($params as $param => $item) {
+                //$extendParams[$param]['type_attr'] = $item['type_attr'];
+                $extendParams['value_attr'][] = $item['value_attr'];
+                $extendParams['value_price'] = $item['value_price'];
+            }
+        }
+        /*foreach($extendParams as $items){
+            $newtest['value_attr'] = $items['value_attr'];
+        }*/
+        /*print implode(' ',$extendParams['value_attr']);
+        print_r(['id'=>$id,'id_product'=>$id_product]);
+        print_r($extendParams);*/
+        return [
+            'value_attr'    =>  is_array($extendParams['value_attr']) ? implode(' | ',$extendParams['value_attr']):$extendParams['value_attr'],
+            'price_p'       =>  is_null($extendParams['value_price']) ? $price:$extendParams['value_price']
+        ];
     }
+
     /**
      * @throws Exception
      */
@@ -449,7 +494,8 @@ class plugins_attribute_admin extends plugins_attribute_db
     {
         if (isset($this->tableaction)) {
             $this->tableform->run();
-        } elseif (isset($this->action)) {
+        }
+        elseif (isset($this->action)) {
             switch ($this->action) {
                 case 'add':
                     if(isset($this->attrData)) {
@@ -533,15 +579,16 @@ class plugins_attribute_admin extends plugins_attribute_db
                             )
                         );*/
                         $this->message->json_post_response(true, 'update');
-                    }elseif(isset($this->attrData)){
+                    }
+                    elseif(isset($this->attrData)){
                         $this->saveContent($this->id_attr);
                         $this->message->json_post_response(true, 'update');
-                    }else{
+                    }
+                    else{
                         $this->modelLanguage->getLanguage();
                         $setEditData = $this->getItems('page', array('edit'=>$this->edit),'all',false);
                         $setEditData = $this->setItemData($setEditData);
                         $this->template->assign('page',$setEditData[$this->edit]);
-
                         //$defaultLanguage = $this->collectionLanguage->fetchData(array('context'=>'one','type'=>'default'));
                         //$attrvalue = $this->getItems('attrvalue', array('edit'=>$this->edit,'default_lang' => $defaultLanguage['id_lang']),'all',false);
                         //$this->template->assign('attrvalue',$attrvalue);
@@ -606,13 +653,13 @@ class plugins_attribute_admin extends plugins_attribute_db
                     }
                     break;
             }
-        }else{
+        }
+        else {
             $this->modelLanguage->getLanguage();
             $defaultLanguage = $this->collectionLanguage->fetchData(array('context'=>'one','type'=>'default'));
             $this->getItems('pages', array('default_lang' => $defaultLanguage['id_lang']), 'all',true,true);
-            $this->data->getScheme(array('mc_attribute','mc_attribute_value'),array('id_attr','type_attr','value_attr','date_register'),$this->tableconfig['all']);
+            $this->data->getScheme(array('mc_attribute','mc_attribute_content','mc_attribute_value_content'),array('id_attr','type_attr','value_attr','id_attr_va','date_register'),$this->tableconfig['all']);
             $this->template->display('index.tpl');
         }
     }
 }
-?>

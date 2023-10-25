@@ -18,7 +18,7 @@ class plugins_attribute_db
                         }
                     }
 
-                    $query = "SELECT p.id_attr, c.type_attr ,p.date_register, (SELECT count(id_attr_va) FROM mc_attribute_value AS av WHERE av.id_attr = p.id_attr  ) AS num_value
+                    $query = "SELECT p.id_attr, c.type_attr ,p.date_register, (SELECT count(id_attr_va) FROM mc_attribute_value AS av WHERE av.id_attr = p.id_attr) AS id_attr_va
 						FROM mc_attribute AS p
                             JOIN mc_attribute_content AS c ON(c.id_attr = p.id_attr)
 							JOIN mc_lang AS lang ON ( c.id_lang = lang.id_lang )
@@ -191,9 +191,8 @@ class plugins_attribute_db
 							JOIN mc_attribute AS c ON(c.id_attr = p.id_attr)
                             JOIN mc_attribute_content AS ac ON(ac.id_attr = c.id_attr)
                             JOIN mc_attribute_value_content AS v ON(v.id_attr_va = p.id_attr_va)
-							JOIN mc_lang AS lang ON(v.id_lang = lang.id_lang)
+							JOIN mc_lang AS lang ON(v.id_lang = lang.id_lang = ac.id_lang)
 							WHERE v.id_lang = :default_lang
-							GROUP BY p.id_attr_va 
 						ORDER BY name_parent ASC";
                     break;
                 case 'cartpay_product':
@@ -222,8 +221,24 @@ class plugins_attribute_db
 								LEFT JOIN mc_catalog_cat_content AS ca ON ( pa.id_cat = ca.id_cat ) 
 								WHERE c.id_lang = :default_lang
 								AND c.published_cat = 1
-								GROUP BY p.id_cat 
 							ORDER BY p.id_cat DESC";
+                    break;
+                case 'extendParamValue':
+                    $query = 'SELECT 
+                                CONCAT(c.type_attr,": ",vc.value_attr) AS value_attr,
+								map.price_p AS value_price
+                            FROM mc_cartpay_attribute AS mca
+                                JOIN mc_attribute_product AS map ON(mca.id_attr_va = map.id_attr_va)
+                            JOIN mc_attribute_value AS v ON(mca.id_attr_va = v.id_attr_va)
+                            JOIN mc_attribute_value_content AS vc ON(vc.id_attr_va = v.id_attr_va)
+                                JOIN mc_attribute AS ac ON(ac.id_attr = v.id_attr)
+                                JOIN mc_attribute_content AS c ON(c.id_attr = ac.id_attr)
+							JOIN mc_lang AS lang ON(vc.id_lang = lang.id_lang AND c.id_lang = lang.id_lang)
+							WHERE lang.id_lang = :default_lang AND map.id_product = :id_product AND mca.id_items = :id';
+                    break;
+                case 'cartpay':
+                    $query = 'SELECT * 
+                    FROM `mc_cartpay_attribute` WHERE id_items = :id';
                     break;
                 default:
                     return false;
@@ -237,7 +252,8 @@ class plugins_attribute_db
                 $this->logger->log('statement','db',$e->getMessage(),$this->logger::LOG_MONTH);
             }
 
-        } elseif ($config['context'] === 'one') {
+        }
+		elseif ($config['context'] === 'one') {
             switch ($config['type']) {
                 case 'root':
                     $query = 'SELECT * FROM mc_attribute ORDER BY id_attr DESC LIMIT 0,1';
@@ -342,6 +358,7 @@ class plugins_attribute_db
         }
         return false;
     }
+
     /**
      * @param array $config
      * @param array $params
@@ -393,6 +410,7 @@ class plugins_attribute_db
             return 'Exception reçue : '.$e->getMessage();
         }
     }
+
     /**
      * @param array $config
      * @param array $params
@@ -429,6 +447,7 @@ class plugins_attribute_db
             return 'Exception reçue : '.$e->getMessage();
         }
     }
+
     /**
      * @param $config
      * @param array $params

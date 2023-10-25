@@ -1,11 +1,14 @@
 {if isset($product.attributes) && is_array($product.attributes)}
-    {foreach $attributes as $type => $options}
+    {*<pre>{$attributes|print_r}</pre>*}
+    {foreach $attributes as $options}
+        {$type = $options[0]}
         <div class="form-group">
-            <select name="param[attribute][{$type.id_type}]" id="param[attribute][{$type.id_type}]" data-price-replacer="true" class="form-control required" required>
+            <select name="param[attribute][{$type.id_type}]" id="attribute_{$type.id_type}" data-price-replacer="true" class="form-control required" required>
                 {foreach $options as $value}
-                    <option value="{$value.id}"{if $value.price} data-price="{$value.price}" data-vat="{if isset($vat)}{$vat}{else}{if $setting.price_display === 'tinc'}{$item.total_inc|string_format:"%.2f"}{else}{$item.total|string_format:"%.2f"}{/if}{/if}"{/if}>{$value.type} : {$value.name}</option>
+                    <option value="{$value.id}"{if $value.price} data-price="{$value.price}" data-vat="{if isset($vat)}{$vat}{else}{if $setting.price_display === 'tinc'}{$item.total_inc|string_format:"%.2f"}{else}{$item.total|string_format:"%.2f"}{/if}{/if}"{/if}>{$value.name}</option>
                 {/foreach}
             </select>
+            <label for="attribute_{$type.id_type}">{$type.type}</label>
         </div>
     {/foreach}
 {/if}

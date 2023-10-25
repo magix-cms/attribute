@@ -60,6 +60,7 @@ class plugins_attribute_core extends plugins_attribute_db{
         if (http_request::isGet('id')) $this->id_pages = $formClean->simpleClean($_GET['id']);
         elseif (http_request::isPost('id')) $this->id_pages = $formClean->simpleClean($_POST['id']);
     }
+
     /**
      * Assign data to the defined variable or return the data
      * @param string $type
@@ -81,6 +82,7 @@ class plugins_attribute_core extends plugins_attribute_db{
     {
         return $this->template->getConfigVars('attribute_plugin');
     }
+
     /**
      * @return mixed
      * @throws Exception
@@ -91,6 +93,7 @@ class plugins_attribute_core extends plugins_attribute_db{
         $list = $this->getItems('setPagesTree',array('default_lang'=>$defaultLanguage['id_lang']),'all',false,false);
         return $list;
     }
+
     /**
      * Update data
      * @param $data
@@ -130,6 +133,7 @@ class plugins_attribute_core extends plugins_attribute_db{
                 break;
         }
     }
+
     /**
      * @param $row
      * @return array
@@ -152,7 +156,6 @@ class plugins_attribute_core extends plugins_attribute_db{
      * @return array|null
      */
     public function getBuildValue($id){
-
         $collection = $this->getItems('langValueByProduct',
             array('iso'=> $this->template->lang,'id'=> $id) ,'all',false);
 
@@ -162,10 +165,12 @@ class plugins_attribute_core extends plugins_attribute_db{
                 $newarr[] = $this->setItemValue($item);
             }
             return $newarr;
-        }else{
+        }
+		else{
             return null;
         }
     }
+
     /**
      * Execution du plugin dans un ou plusieurs modules core
      */
@@ -185,4 +190,3 @@ class plugins_attribute_core extends plugins_attribute_db{
         }
     }
 }
-?>

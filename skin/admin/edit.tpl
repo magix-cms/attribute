@@ -37,7 +37,12 @@
                             {include file="section/form/list-form.tpl" controller="attribute" sub="value" controller_extend=false dir_controller="" data=$attrvalue id=$id class_form="col-ph-12 col-lg-4" class_table="col-ph-12 col-lg-8"}
                         </div>
                         <div role="tabpanel" class="tab-pane" id="category">
-                            {include file="section/form/list-form.tpl" controller="attribute" sub="category" controller_extend=false dir_controller="" data=$attrCats id=$attrCats.id_attr_ca class_form="col-ph-12 col-lg-4" class_table="col-ph-12 col-lg-8"}
+                            {if !empty($attrvalue.id_attr_ca)}
+                                {$id = $attrvalue.id_attr_ca}
+                            {else}
+                                {$id = $smarty.get.edit}
+                            {/if}
+                            {include file="section/form/list-form.tpl" controller="attribute" sub="category" controller_extend=false dir_controller="" data=$attrCats id=$id class_form="col-ph-12 col-lg-4" class_table="col-ph-12 col-lg-8"}
                         </div>
                     </div>
                 </div>
